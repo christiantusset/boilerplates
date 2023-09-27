@@ -1,48 +1,49 @@
+#SQLLITE
 ---
-volumes:
-  nextcloud-data:
-  nextcloud-db:
+version: "2.1"
 services:
-  nextcloud-app:
-    image: nextcloud:latest
-    container_name: nextcloud-app
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/config:/config #CHANGE
+      - /path/to/data:/data #CHANGE
     ports:
-      - 80:80
-    volumes:
-      - nextcloud-data:/var/www/html
-    environment:
-      - MYSQL_PASSWORD=$MYSQL_PASSWORD
-      - MYSQL_DATABASE=$MYSQL_DATABASE
-      - MYSQL_USER=$MYSQL_USER
-      - MYSQL_HOST=nextcloud-db
-    restart: unless-stopped
-  nextcloud-db:
-    image: mariadb:latest
-    container_name: nextcloud-db
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
-    volumes:
-      - nextcloud-db:/var/lib/mysql
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=true
-      - MYSQL_PASSWORD=$MYSQL_PASSWORD
-      - MYSQL_DATABASE=$MYSQL_DATABASE
-      - MYSQL_USER=$MYSQL_USER
+      - 443:443
     restart: unless-stopped
 
-# SQLLITE
+# MariaDB/MySQL
 # ---
-# version: "2.1"
+# volumes:
+#   nextcloud-data:
+#   nextcloud-db:
 # services:
-#   nextcloud:
-#     image: lscr.io/linuxserver/nextcloud:latest
-#     container_name: nextcloud
-#     environment:
-#       - PUID=1000
-#       - PGID=1000
-#       - TZ=Etc/UTC
-#     volumes:
-#       - /path/to/config:/config #CHANGE
-#       - /path/to/data:/data #CHANGE
+#   nextcloud-app:
+#     image: nextcloud:latest
+#     container_name: nextcloud-app
 #     ports:
-#       - 443:443
+#       - 80:80
+#     volumes:
+#       - nextcloud-data:/var/www/html
+#     environment:
+#       - MYSQL_PASSWORD=$MYSQL_PASSWORD
+#       - MYSQL_DATABASE=$MYSQL_DATABASE
+#       - MYSQL_USER=$MYSQL_USER
+#       - MYSQL_HOST=nextcloud-db
+#     restart: unless-stopped
+#   nextcloud-db:
+#     image: mariadb:latest
+#     container_name: nextcloud-db
+#     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+#     volumes:
+#       - nextcloud-db:/var/lib/mysql
+#     environment:
+#       - MYSQL_RANDOM_ROOT_PASSWORD=true
+#       - MYSQL_PASSWORD=$MYSQL_PASSWORD
+#       - MYSQL_DATABASE=$MYSQL_DATABASE
+#       - MYSQL_USER=$MYSQL_USER
 #     restart: unless-stopped
