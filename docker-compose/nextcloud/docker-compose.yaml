@@ -10,10 +10,10 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /path/to/config:/config #CHANGE
-      - /path/to/data:/data #CHANGE
+      - ./config:/config
+      - ./data:/data
     ports:
-      - 443:443
+      - 8082:443
     restart: unless-stopped
 
 # MariaDB/MySQL
