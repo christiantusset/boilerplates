@@ -6,8 +6,8 @@ services:
     container_name: qbittorrentvpn
     privileged: true   
     environment:
-      - VPN_USERNAME=CHANGEME #
-      - VPN_PASSWORD=CHANGEME #
+      - VPN_USERNAME= #CHANGEME ###
+      - VPN_PASSWORD= #CHANGEME ###
       - PUID=1000 #optional
       - PGID=100 #optional
       - WEBUI_PORT_ENV=8080 #optional
