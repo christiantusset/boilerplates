@@ -1,0 +1,25 @@
+---
+version: "3"
+services:
+  qbittorrentvpn:
+    image: markusmcnugen/qbittorrentvpn
+    container_name: qbittorrentvpn
+    privileged: true   
+    environment:
+      - VPN_USERNAME=CHANGEME #
+      - VPN_PASSWORD=CHANGEME #
+      - PUID=1000 #optional
+      - PGID=100 #optional
+      - WEBUI_PORT_ENV=8080 #optional
+      - INCOMING_PORT_ENV=8999 #optional
+      - VPN_ENABLED=yes
+      - LAN_NETWORK=192.168.1.0/24
+      - NAME_SERVERS=1.1.1.1,1.0.0.1
+    ports:
+      - 8080:8080
+      - 8999:8999
+      - 8999:8999/udp
+    volumes:
+      - ./config:/config
+      - ./downloads:/downloads
+    restart: unless-stopped
