@@ -1,0 +1,18 @@
+---
+# https://ranchermanager.docs.rancher.com/pages-for-subheaders/rancher-on-a-single-node-with-docker
+version: "3"
+services:
+  yacht:
+    container_name: rancher
+    image: rancher/rancher:latest
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - 8085:443
+      - 8086:80
+    # volumes: # optional
+    #   - /<CERT_DIRECTORY>/<FULL_CHAIN.pem>:/etc/rancher/ssl/cert.pem # optional
+    #   - /<CERT_DIRECTORY>/<PRIVATE_KEY.pem>:/var/run/docker.sock # optional
+      # CERT_DIRECTORY = The path to the directory containing your certificate files.
+      # FULL_CHAIN.pem = The path to your full certificate chain.
+      # PRIVATE_KEY.pem = The path to the private key for your certificate.
