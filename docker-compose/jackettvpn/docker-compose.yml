@@ -1,0 +1,25 @@
+# App: https://github.com/Jackett/Jackett
+# Image: https://github.com/DyonR/docker-Jackettvpn
+---
+version: "3"
+services:
+  jackettvpn:
+    container_name: jackettvpn
+    image: dyonr/jackettvpn
+    privileged: true   
+    environment:
+      - VPN_USERNAME= #CHANGEME ###
+      - VPN_PASSWORD= #CHANGEME ###
+      - VPN_TYPE=openvpn
+      - VPN_ENABLED=yes
+      - LAN_NETWORK=192.168.1.0/24
+      - NAME_SERVERS=1.1.1.1,1.0.0.1
+      - PUID=1000 #optional
+      - PGID=100 #optional
+      #- WEBUI_PASSWORD= #PASS_HERE #optional
+    ports:
+      - 9117:9117
+    volumes:
+      - ./config:/config
+      - ./blackhole:/blackhole
+    restart: unless-stopped
