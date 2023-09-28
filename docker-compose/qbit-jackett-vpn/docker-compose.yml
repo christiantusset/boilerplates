@@ -13,10 +13,10 @@ services:
       - VPN_TYPE=openvpn
       - LAN_NETWORK=192.168.1.0/24
       - NAME_SERVERS=1.1.1.1,1.0.0.1
-      - PUID=1000 #optional
-      - PGID=100 #optional
       - WEBUI_PORT_ENV=8080 #optional
       - INCOMING_PORT_ENV=8999 #optional
+      # - PUID=1000 #optional
+      # - PGID=100 #optional
     ports:
       - 8080:8080
       - 8999:8999
@@ -24,7 +24,7 @@ services:
     volumes:
       - ./config:/config
       - ./blackhole:/blackhole
-      - /mnt/user/Downloads/:/downloads
+      - ./downloads:/downloads
 
   # App: https://github.com/Jackett/Jackett
   # Image: https://github.com/DyonR/docker-Jackettvpn
@@ -40,8 +40,8 @@ services:
       - VPN_TYPE=openvpn
       - LAN_NETWORK=192.168.1.0/24
       - NAME_SERVERS=1.1.1.1,1.0.0.1
-      - PUID=99 #optional
-      - PGID=100 #optional
+      # - PUID=99 #optional
+      # - PGID=100 #optional
       #- WEBUI_PASSWORD= #PASS_HERE #optional
     ports:
       - 9117:9117
