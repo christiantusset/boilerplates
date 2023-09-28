@@ -2,7 +2,7 @@
 # https://ranchermanager.docs.rancher.com/pages-for-subheaders/rancher-on-a-single-node-with-docker
 version: "3"
 services:
-  yacht:
+  rancher:
     container_name: rancher
     image: rancher/rancher:latest
     privileged: true
