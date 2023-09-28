@@ -1,0 +1,62 @@
+version: '3.7'
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./gluetun:/gluetun
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      - htpc
+    ports:
+      - 127.0.0.1:10200:9117     # jackett
+      - 127.0.0.1:10202:10202    # qbittorrent
+      - 100.90.189.69:8888:8888  # http_proxy
+    environment:
+      - VPNSP=private internet access
+      - REGION=Switzerland
+      - OPENVPN_USER=.........
+      - OPENVPN_PASSWORD=.........
+      - PIA_ENCRYPTION=strong
+      - PROTOCOL=udp
+      - PORT_FORWARDING=on
+      - DOT=on
+      - DOT_PROVIDERS=cloudflare
+      - DOT_IPV6=off
+      - BLOCK_MALICIOUS=on
+      - BLOCK_SURVEILLANCE=on
+      - BLOCK_ADS=off
+      - SHADOWSOCKS=off
+      - HTTPPROXY=on
+      - HTTPPROXY_USER=admin
+      - HTTPPROXY_PASSWORD=xxxxxxxxxxxxxxx
+      - TZ=UTC
+  jackett:
+    image: ghcr.io/linuxserver/jackett
+    network_mode: service:gluetun
+    environment:
+      - PUID=1003
+      - PGID=1003
+      - TZ=UTC
+    volumes:
+      - ./jackett:/config
+      - ./blackhole:/blackhole
+  qbit:
+    image: ghcr.io/linuxserver/qbittorrent
+    network_mode: service:gluetun
+    environment:
+      - PUID=1003
+      - PGID=1003
+      - TZ=UTC
+      - WEBUI_PORT=10202
+    volumes:
+      - ./qbit:/config
+      - ./blackhole:/blackhole
+      - /mnt/storage/downloads:/downloads
+
+networks:
+  htpc:
+    driver: bridge
