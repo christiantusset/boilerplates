@@ -1,11 +1,9 @@
 ---
-volumes:
-  portainer-data:
-    driver: local
+version: "3"
 services:
-  app:
-    container_name: portainer
+  portainer:
     image: portainer/portainer-ce:latest
+    container_name: portainer
     ports:
       - 9000:9000
       - 9443:9443
@@ -14,3 +12,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer-data:/data
     restart: unless-stopped
+
+volumes:
+  portainer-data:
+    driver: local
