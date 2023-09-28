@@ -4,9 +4,9 @@
 version: "3"
 services:
   jackettvpn:
-    container_name: jackettvpn
     image: dyonr/jackettvpn
-    privileged: true   
+    container_name: jackettvpn
+    privileged: true
     environment:
       - VPN_USERNAME= #CHANGEME ###
       - VPN_PASSWORD= #CHANGEME ###
