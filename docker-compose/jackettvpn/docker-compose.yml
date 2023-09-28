@@ -14,7 +14,7 @@ services:
       - VPN_ENABLED=yes
       - LAN_NETWORK=192.168.1.0/24
       - NAME_SERVERS=1.1.1.1,1.0.0.1
-      - PUID=1000 #optional
+      - PUID=99 #optional
       - PGID=100 #optional
       #- WEBUI_PASSWORD= #PASS_HERE #optional
     ports:
