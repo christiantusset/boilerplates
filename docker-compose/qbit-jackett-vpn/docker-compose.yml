@@ -48,3 +48,12 @@ services:
     volumes:
       - ./config:/config
       - ./blackhole:/blackhole
+
+
+#After Start qBit: Tools > Options
+#                    - Automatically add torrents from:
+#                    - /blackhole : Monitored Folder
+#
+#After Start Jackett: http://192.168.1.23:9117/UI/Dashboard
+#                       - Jackett Configuration
+#                       - Blackhole directory: /blackhole
