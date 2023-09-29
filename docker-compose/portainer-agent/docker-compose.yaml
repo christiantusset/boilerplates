@@ -1,10 +1,9 @@
 ---
+version: "3"
 services:
-  app:
-    container_name: portainer-agent
-    deploy:
-      mode: global
+  portainer-agent:
     image: portainer/agent:latest
+    container_name: portainer-agent
     ports:
       - 9001:9001
     volumes:
@@ -13,3 +12,5 @@ services:
     networks:
       - portainer-agent_default
     restart: unless-stopped
+    deploy:
+      mode: global
