@@ -1,15 +1,11 @@
 ---
-version: '3.8'
+version: '3'
 services:
   grafana:
-    image: grafana/grafana-oss:latest
-    container_name: grafana
+    image: grafana/grafana
+    user: "$UID:$GID"
+    network_mode: host
     ports:
-      - "3000:3000"
+      - 3000:3000
     volumes:
-      - /mnt/user/appdata/grafana/data:/var/lib/grafana
-    restart: unless-stopped
-    
-volumes:
-  grafana-data:
-    driver: local
+      - ./grafana/data:/var/lib/grafana
