@@ -1,29 +1,43 @@
 mqtt:
   enabled: false
 cameras:
-  driveway:
+  FrontCam:
     ffmpeg:
       inputs:
-        - path: rtsp://IP_CAMERA_HERE:554/h264Preview_01_main
+        - path: rtsp://IP_HERE:554/h264Preview_01_main
           roles:
             - detect
             - record
-    objects:
-      track:
-        - person
-        - dog
-        - bicycle
-        - car
-        - motorcycle
     detect:
-      width: 2304
-      height: 1296
-    record:
-      enabled: True
-      retain:
-        days: 7
-        mode: all
+      width: 1280
+      height: 720
+      fps: 5
 detectors:
   cpu1:
     type: cpu
     num_threads: 3
+#Global Object Settings
+birdseye:
+  enabled: True
+  mode: continuous
+objects:
+  track:
+    - person
+  filters:
+    person:
+      threshold: 0.75
+      min_area: 5000
+      max_area: 100000
+snapshots:
+  enabled: True
+  retain:
+    default: 1
+record:
+  enabled: True
+  expire_interval: 30
+  retain:
+    days: 3
+    mode: motion
+  events:
+    retain:
+      default: 5
