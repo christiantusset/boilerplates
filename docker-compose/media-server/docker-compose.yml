@@ -3,27 +3,29 @@ version: "3"
 services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
     restart: unless-stopped
     environment:
       - PUID=1002
       - PGID=1002
       - TZ=UTC
+    ports:
+      - 2703:8989
     volumes:
       - ./sonarr:/config
       - /mnt/storage/series:/series:rshared
       - ./downloads:/downloads
-    ports:
-      - 127.0.0.1:2703:8989
   radarr:
     image: lscr.io/linuxserver/radarr
+    container_name: radarr
     restart: unless-stopped
     environment:
       - PUID=1002
       - PGID=1002
       - TZ=UTC
+    ports:
+      - 2704:7878
     volumes:
       - ./radarr:/config
       - /mnt/storage/movies:/movies:rshared
       - ./downloads:/downloads
-    ports:
-      - 127.0.0.1:2704:7878
