@@ -17,6 +17,8 @@ detectors:
     type: cpu
     num_threads: 3
 #Global Object Settings
+rtmp:
+  enabled: false
 birdseye:
   enabled: True
   mode: continuous
@@ -34,10 +36,12 @@ snapshots:
     default: 1
 record:
   enabled: True
-  expire_interval: 30
+  expire_interval: 10
   retain:
     days: 3
     mode: motion
   events:
     retain:
       default: 5
+ffmpeg:
+  hwaccel_args: preset-vaapi
