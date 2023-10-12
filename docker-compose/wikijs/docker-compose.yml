@@ -18,8 +18,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
-          memory: '0.8GB'
+          cpus: '0.8'
+          memory: '1GB'
 
 
 #--- Alternative with POSTGRES
