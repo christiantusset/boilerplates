@@ -12,6 +12,8 @@ services:
     volumes:
       - ./config:/config
       - ./data:/data
+      # - /home/server/qbit-jackett-vpn/blackhole:/app/www/public/blackhole
+      # - /home/server/qbit-jackett-vpn/downloads:/app/www/public/downloads
     ports:
       - 8082:443
     restart: unless-stopped
