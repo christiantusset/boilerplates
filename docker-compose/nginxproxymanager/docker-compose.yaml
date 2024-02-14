@@ -4,13 +4,17 @@ services:
     image: 'jc21/nginx-proxy-manager:latest'
     container_name: nginx-proxy-manager
     restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
     ports:
       - '80:80'
       - '81:81'
       - '443:443'
     volumes:
-      - ./nginxproxymanager/data:/data
-      - ./nginxproxymanager/letsencrypt:/etc/letsencrypt
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
 
 # --- WITH DATABASE
 # volumes:
