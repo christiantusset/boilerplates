@@ -1,20 +1,15 @@
+---
 version: "3"
-
 # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
 services:
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
-    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-      - "67:67/udp" # Only required if you are using Pi-hole as your DHCP server
-      - "80:80/tcp" # url:port/admin
-      # - "443:443/tcp"
+    network_mode: host
     environment:
       - TZ='America/Sao_Paulo'
       - WEBPASSWORD='your-secret-password' #WEBPASSWORD: 'set a secure password here or it will be random'
+      - WEB_PORT: '82' # Change port 80 (default) to 82 portal admin
     volumes: 
       - './etc-pihole:/etc/pihole' # Volumes store your data between container upgrades
       - './etc-dnsmasq.d:/etc/dnsmasq.d' # https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
