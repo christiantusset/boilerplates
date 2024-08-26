@@ -22,7 +22,8 @@ services:
       - "8555:8555/udp" # WebRTC over udp
     environment:
       - FRIGATE_RTSP_PASSWORD:"adminadmin"
-      - LIBVA_DRIVER_NAME=radeonsi
+      - LIBVA_DRIVER_NAME=radeonsi #amd
+      # - LIBVA_DRIVER_NAME=i965 #intel
 #    devices:
 #      - /dev/bus/usb:/dev/bus/usb # passes the USB Coral, needs to be modified for other versions
 #      - /dev/apex_0:/dev/apex_0 # passes a PCIe Coral, follow driver instructions here https://coral.ai/docs/m2/get-started/#2a-on-linux
