@@ -2,34 +2,23 @@
 services:
   gluetun:
     image: qmcgaw/gluetun:latest
+    restart: always
     cap_add:
       - NET_ADMIN
     volumes:
       - ./gluetun:/gluetun
-      - ./post-rules.txt:/iptables/post-rules.txt:r
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
-      - [IP_tailscale]:2222:2222  # magnetico
+      - [IP_TAILSCALE]:2222:2222  # magnetico
     environment:
-      - VPNSP=private internet access
-      - REGION=Switzerland
-      - OPENVPN_USER=
-      - OPENVPN_PASSWORD=
-      - PIA_ENCRYPTION=strong
-      - PROTOCOL=udp
-      - PORT_FORWARDING=on
-      - DOT=on
-      - DOT_PROVIDERS=cloudflare
-      - DOT_IPV6=off
-      - BLOCK_MALICIOUS=on
-      - BLOCK_SURVEILLANCE=on
-      - BLOCK_ADS=off
-      - SHADOWSOCKS=off
-      - HTTPPROXY=off
+      - VPN_SERVICE_PROVIDER=nordvpn #or other
+      - SERVER_COUNTRIES=Netherlands
+      - VPN_TYPE=openvpn #or wireguard
+      - OPENVPN_USER=[USER]
+      - OPENVPN_PASSWORD=[PASSWORD]
       - TZ=UTC
   magnetico:
     image: ghcr.io/fabricio20/magnetico/magneticod:latest
     network_mode: service:gluetun
     restart: always
-    command: magneticod --indexer-addr=0.0.0.0:59450
