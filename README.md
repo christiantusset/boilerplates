@@ -8,10 +8,9 @@ This repository **Boilerplates** houses my exclusive assortment of templates, of
 
 ## FAQ
 
-> How to resolve the bug with permissions on images?
+- How to resolve the bug with permissions on images? `sudo chown 1000:1000 folder_name`
 
-`sudo chown 1000:1000 folder_name`
-
+---
 ## Other Resources
 
 - [Dotfiles](https://github.com/christiantusset/dotfiles-arch/) - My personal configuration files for Arch Linux based.
