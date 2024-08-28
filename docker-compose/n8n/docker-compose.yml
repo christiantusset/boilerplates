@@ -1,6 +1,4 @@
-# https://docs.n8n.io/
----
-version: "3.8"
+--- # https://docs.n8n.io/
 services:
   n8n:
     image: docker.n8n.io/n8nio/n8n
@@ -12,9 +10,8 @@ services:
       - DB_TYPE=sqlite
       - DB_SQLITE_VACUUM_ON_STARTUP=true
     volumes:
-      - n8n_storage:/home/node/.n8n
-#      - ./data/files:/files
+      - ./n8n_data:/home/node/.n8n
 
-volumes:
-  n8n_storage:
-    driver: local
+# volumes:
+#   n8n_storage:
+#     driver: local
