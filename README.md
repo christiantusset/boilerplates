@@ -8,7 +8,7 @@ This repository **Boilerplates** houses my exclusive assortment of templates, of
 
 ## FAQ
 
-> How to resolve bug with permissions in images?
+> How to resolve the bug with permissions on images?
 
 `sudo chown 1000:1000 folder_name`
 
