@@ -9,6 +9,7 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=root #user: root, password: root
       - MARIADB_DATABASE=default
+    command: --innodb_buffer_pool_instances=4 --innodb-buffer-pool-size=2G --innodb_log_file_size=1G --key_buffer_size=256M --query_cache_size=64M
     volumes:
       - ./mariadb-data:/var/lib/mysql
 
