@@ -1,6 +1,6 @@
 ---
 services:
-  mariadb:
+  mariadb: #https://hub.docker.com/_/mariadb
     container_name: mariadb
     image: mariadb:latest
     restart: always
@@ -8,12 +8,12 @@ services:
       - "3306:3306"
     environment:
       - MARIADB_ROOT_PASSWORD=root #user: root, password: root
-      - MARIADB_DATABASE=default
-    command: --innodb_buffer_pool_instances=4 --innodb-buffer-pool-size=2G --innodb_log_file_size=1G --key_buffer_size=256M --query_cache_size=64M
+      - MARIADB_DATABASE=default #default database
     volumes:
       - ./mariadb-data:/var/lib/mysql
+    command: --innodb_buffer_pool_instances=4 --innodb-buffer-pool-size=2G --innodb_log_file_size=1G --key_buffer_size=256M --query_cache_size=64M
 
-  phpmyadmin: #host is: phpmyadmin
+  phpmyadmin: #https://hub.docker.com/_/phpmyadmin
     container_name: phpmyadmin
     image: phpmyadmin
     restart: always
@@ -21,19 +21,6 @@ services:
       - "8888:80"
     environment:
       - PMA_ARBITRARY=1
-
-#    environment:
-#      (Optional) remove this section, when using random, or empty root password
-#      (Optional) when using random, or empty root password
-#      - MARIADB_RANDOM_ROOT_PASSWORD=true
-#      - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=true
-#      - MARIADB_DATABASE=your-database
-#      - MARIADB_USER=your-user
-#      - MARIADB_PASSWORD=your-password
-# (Optional) when using custom volume
-#volumes:
-#  mariadb-data:
-# (Optional) when using custom network
-# networks:
-#   yournetwork:
-#     external: true
+      - PMA_HOST=mariadb
+      - PMA_USER=root
+      - PMA_PASSWORD=root
