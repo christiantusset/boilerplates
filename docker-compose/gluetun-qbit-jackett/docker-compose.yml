@@ -9,8 +9,9 @@ services:
     environment:
       - VPN_SERVICE_PROVIDER=airvpn
       - VPN_TYPE=wireguard
-      - WIREGUARD_PRIVATE_KEY=[redacted]
-      - WIREGUARD_ADDRESSES=11.14.1.2/16
+      - WIREGUARD_PRIVATE_KEY=[KEY]
+      - WIREGUARD_PRESHARED_KEY=[KEY]
+      - WIREGUARD_ADDRESSES=10.99.99.99/32,ff:ff:ff...:ff/128 #WIREGUARD_ADDRESSES may only contain an IPv6 address (such as ff:ff.../128) if your container setup supports IPv6. To do so, see the IPv6 document. Otherwise, remove the IPv6 address from WIREGUARD_ADDRESSES
       - SERVER_COUNTRIES=Netherlands
     ports:
       - "8080:8080"
@@ -21,16 +22,37 @@ services:
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
     network_mode: "service:gluetun"
+    container_name: qbittorrent
+    restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/Berlin
+      - TZ=America/Sao_Paulo
       - WEBUI_PORT=8080
     volumes:
-      - /docker/appdata/qbittorrent:/config
-      - /data/torrents:/data/torrents
+      - ./qbit/config:/config
+      - ./qbit/downloads:/downloads
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    network_mode: "service:gluetun"
+    container_name: jackett
+    restart: unless-stopped
+    ports:
+      - "9117:9117"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - AUTO_UPDATE=true #optional
+      - RUN_OPTS= #optional
+    volumes:
+      - /jackett/config:/config
+      - /jackett/blackhole:/downloads
     depends_on:
       gluetun:
         condition: service_healthy
