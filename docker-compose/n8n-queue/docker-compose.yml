@@ -1,22 +1,24 @@
 ---
 services:
   redis:
-    image: redis:alpine
-    restart: always
+    image: redis:7-alpine
+    restart: unless-stopped
     ports:
-      - 6379:6379
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 1s
-      timeout: 3s
+      - "6379:6379"
     volumes:
       - redis_data:/data
+    command: redis-server
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - n8n-network
 
   postgres:
     image: ankane/pgvector
-    restart: always
+    restart: unless-stopped
     environment:
       - POSTGRES_DB=n8n
       - POSTGRES_USER=postgres
@@ -34,319 +36,60 @@ services:
 
   n8n:
     image: n8nio/n8n:latest
-    restart: always
+    restart: unless-stopped
     ports:
-      - "5678:5678"  
-    deploy:
-      resources:
-        limits:
-          cpus: "0.6"
-          memory: "1.5G"
-        reservations:
-          cpus: "0.3"
-          memory: "768M"
+      - "5678:5678"
     environment:
-      - N8N_DIAGNOSTICS_ENABLED=false
-      - N8N_USER_FOLDER=/n8n/main
-      - N8N_HOST=n8n.EXAMPLE.COM  # Note, this is for a subdomain install. 
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - N8N_ENCRYPTION_KEY=XXXXXXXXXXX  # You need to create your own encryption key
-      # Queue mode config
-      - EXECUTIONS_MODE=queue
-      - QUEUE_BULL_REDIS_HOST=redis
-      - QUEUE_HEALTH_CHECK_ACTIVE=true
-      # DB config
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_DATABASE=n8n
-      - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD=password
-      # Task Runner config (disable if not supported)
-      - N8N_RUNNERS_ENABLED=false
-      # - N8N_RUNNERS_MODE=external
-      # - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
-      # - N8N_TASK_BROKER_URL=http://n8n:5679
-      # - N8N_COMMAND_RESPONSE_URL=http://n8n:5679
-      # - N8N_TASK_BROKER_PORT=5679
-    volumes:
-      - n8n_main:/n8n
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - n8n-network
-    healthcheck:
-      test: ["CMD", "node", "-e", "process.exit(0)"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      # Database Configuration
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: postgres
+      DB_POSTGRESDB_PASSWORD: password
       
-  n8n-webhook:
-    image: n8nio/n8n:latest
-    restart: always
-    command: webhook
-    deploy:
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: "512M"
-        reservations:
-          cpus: "0.1"
-          memory: "256M"
-    environment:
-      - N8N_DIAGNOSTICS_ENABLED=false
-      - N8N_USER_FOLDER=/n8n/webhook
-      - N8N_ENCRYPTION_KEY=XXXXXXXXXXX  # You need to create your own encryption key
-      - N8N_HOST=n8n.example.com
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      # Queue mode config
-      - EXECUTIONS_MODE=queue
-      - QUEUE_BULL_REDIS_HOST=redis
-      - QUEUE_HEALTH_CHECK_ACTIVE=true
-      # DB config
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_DATABASE=n8n
-      - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD=password
-      # Task Runner config (disable if not supported)
-      - N8N_RUNNERS_ENABLED=false
-      # - N8N_RUNNERS_MODE=internal
-      # - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
-      # - N8N_TASK_BROKER_URL=http://n8n:5679
-      # - N8N_COMMAND_RESPONSE_URL=http://n8n:5679
+      # Queue Configuration
+      QUEUE_BULL_REDIS_HOST: redis
+      QUEUE_BULL_REDIS_PORT: 6379
+      EXECUTIONS_MODE: queue
+      
+      # Modern n8n Configuration
+      N8N_RUNNERS_ENABLED: true
+      N8N_RUNNERS_MODE: internal
+      OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: true
+      
+      # n8n Configuration
+      N8N_HOST: saturno.local
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://saturno.local:5678/
+      N8N_SECURE_COOKIE: false
+      TZ: America/Sao_Paulo
+      GENERIC_TIMEZONE: America/Sao_Paulo
+      
+      # Security & File Permissions
+      N8N_BASIC_AUTH_ACTIVE: true
+      N8N_BASIC_AUTH_USER: admin
+      N8N_BASIC_AUTH_PASSWORD: changeme
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+      
+      # Logs
+      N8N_LOG_LEVEL: info
+      N8N_LOG_OUTPUT: console
     volumes:
-      - n8n_webhook:/n8n
+      - n8n_data:/home/node/.n8n
     depends_on:
-      n8n:
-        condition: service_healthy
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
       - n8n-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5678/healthz || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
-  n8n-worker-1:
-    image: n8nio/n8n:latest
-    restart: always
-    command: worker
-    deploy:
-      resources:
-        limits:
-          cpus: "0.35"
-          memory: "768M"
-        reservations:
-          cpus: "0.15"
-          memory: "384M"
-    environment:
-      - N8N_DIAGNOSTICS_ENABLED=false
-      - N8N_USER_FOLDER=/n8n/worker1
-      - N8N_ENCRYPTION_KEY=XXXXXXXXXXX  # You need to create your own encryption key
-      # Queue mode config
-      - EXECUTIONS_MODE=queue
-      - QUEUE_BULL_REDIS_HOST=redis
-      - QUEUE_HEALTH_CHECK_ACTIVE=true
-      - N8N_CONCURRENCY_PRODUCTION_LIMIT=10
-      # DB config
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_DATABASE=n8n
-      - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD=password
-      # Task Runner config
-      - N8N_RUNNERS_ENABLED=true
-      - N8N_RUNNERS_MODE=internal
-      - N8N_TASK_BROKER_URL=http://n8n:5679
-      - N8N_COMMAND_RESPONSE_URL=http://n8n:5679
-    volumes:
-      - n8n_worker1:/n8n
-    depends_on:
-      n8n:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - n8n-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://n8n:5678/healthz || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
-  n8n-worker-2:
-    image: n8nio/n8n:latest
-    restart: always
-    command: worker
-    deploy:
-      resources:
-        limits:
-          cpus: "0.35"
-          memory: "768M"
-        reservations:
-          cpus: "0.15"
-          memory: "384M"
-    environment:
-      - N8N_DIAGNOSTICS_ENABLED=false
-      - N8N_USER_FOLDER=/n8n/worker2
-      - N8N_ENCRYPTION_KEY=XXXXXXXXXXX  # You need to create your own encryption key      
-      # Queue mode config
-      - EXECUTIONS_MODE=queue
-      - QUEUE_BULL_REDIS_HOST=redis
-      - QUEUE_HEALTH_CHECK_ACTIVE=true
-      - N8N_CONCURRENCY_PRODUCTION_LIMIT=10
-      # DB config
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_DATABASE=n8n
-      - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD=password
-      # Task Runner config (disable if not supported)
-      - N8N_RUNNERS_ENABLED=false
-      # - N8N_RUNNERS_MODE=external
-      # - N8N_TASK_BROKER_URL=http://n8n:5679
-      # - N8N_COMMAND_RESPONSE_URL=http://n8n:5679
-    volumes:
-      - n8n_worker2:/n8n
-    depends_on:
-      n8n-worker-1:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - n8n-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://n8n:5678/healthz || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
-  n8n-worker-3:
-    image: n8nio/n8n:latest
-    restart: always
-    command: worker
-    deploy:
-      resources:
-        limits:
-          cpus: "0.35"
-          memory: "768M"
-        reservations:
-          cpus: "0.15"
-          memory: "384M"
-    environment:
-      - N8N_DIAGNOSTICS_ENABLED=false
-      - N8N_USER_FOLDER=/n8n/worker3
-      - N8N_ENCRYPTION_KEY=XXXXXXXXXXX  # You need to create your own encryption key
-      # Queue mode config
-      - EXECUTIONS_MODE=queue
-      - QUEUE_BULL_REDIS_HOST=redis
-      - QUEUE_HEALTH_CHECK_ACTIVE=true
-      - N8N_CONCURRENCY_PRODUCTION_LIMIT=10
-      # DB config
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_DATABASE=n8n
-      - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD=password
-      # Task Runner config (disable if not supported)
-      - N8N_RUNNERS_ENABLED=false
-      # - N8N_RUNNERS_MODE=external
-      # - N8N_TASK_BROKER_URL=http://n8n:5679
-      # - N8N_COMMAND_RESPONSE_URL=http://n8n:5679
-    volumes:
-      - n8n_worker3:/n8n
-    depends_on:
-      n8n-worker-2:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - n8n-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://n8n:5678/healthz || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
-  n8n-worker-4:
-    image: n8nio/n8n:latest
-    restart: always
-    command: worker
-    deploy:
-      resources:
-        limits:
-          cpus: "0.35"
-          memory: "768M"
-        reservations:
-          cpus: "0.15"
-          memory: "384M"
-    environment:
-      - N8N_DIAGNOSTICS_ENABLED=false
-      - N8N_USER_FOLDER=/n8n/worker4
-      - N8N_ENCRYPTION_KEY=XXXXXXXXXXX  # You need to create your own encryption key
-      # Queue mode config
-      - EXECUTIONS_MODE=queue
-      - QUEUE_BULL_REDIS_HOST=redis
-      - QUEUE_HEALTH_CHECK_ACTIVE=true
-      - N8N_CONCURRENCY_PRODUCTION_LIMIT=10
-      # DB config
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_DATABASE=n8n
-      - DB_POSTGRESDB_USER=postgres  #default so you should change it
-      - DB_POSTGRESDB_PASSWORD=password  #default so you should change it
-      # Task Runner config (disable if not supported)
-      - N8N_RUNNERS_ENABLED=false
-      # - N8N_RUNNERS_MODE=external
-      # - N8N_TASK_BROKER_URL=http://n8n:5679
-      # - N8N_COMMAND_RESPONSE_URL=http://n8n:5679
-    volumes:
-      - n8n_worker4:/n8n
-    depends_on:
-      n8n-worker-3:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - n8n-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://n8n:5678/healthz || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
 
 volumes:
   postgres_data:
   redis_data:
-  n8n_main:
-  n8n_webhook:
-  n8n_worker1:
-  n8n_worker2:
-  n8n_worker3:
-  n8n_worker4:
+  n8n_data:
 
 networks:
   n8n-network:
