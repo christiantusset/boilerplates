@@ -1,0 +1,49 @@
+---
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass default
+    environment:
+      REDIS_USER: default
+      REDIS_PASSWORD: default
+    
+  waha:
+    image: devlikeapro/waha:latest
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      WHATSAPP_HOOK_URL: http://saturno.local:5678/webhook/webhook
+      WHATSAPP_DEFAULT_ENGINE: GOWS
+      WHATSAPP_HOOK_EVENTS: message
+      WAHA_API_KEY: your_api_key
+    volumes:
+      - waha_sessions:/app/.sessions
+      - waha_media:/app/.media
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      WEBHOOK_URL: http://saturno.local:5678
+      N8N_HOST: saturno.local
+      N8N_LOG_LEVEL: debug
+      N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE: true
+      N8N_SECURE_COOKIE: false
+      TZ: America/Sao_Paulo
+      GENERIC_TIMEZONE: America/Sao_Paulo
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  waha_sessions:
+  waha_media:
+  redis_data:
+  n8n_data:
