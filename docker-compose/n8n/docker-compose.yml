@@ -1,5 +1,6 @@
- #https://docs.n8n.io/
---- # sudo chown 1000:1000 n8n_data
+# https://docs.n8n.io/
+# mkdir n8n_data && sudo chown 1000:1000 n8n_data 
+--- 
 services:
   n8n:
     image: docker.n8n.io/n8nio/n8n:latest
