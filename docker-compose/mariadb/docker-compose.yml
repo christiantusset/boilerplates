@@ -1,0 +1,19 @@
+---
+services:
+  # Banco de dados MariaDB
+  db:
+    container_name: db
+    image: mariadb:11
+    restart: always
+    command: --innodb_buffer_pool_instances=4 --innodb-buffer-pool-size=2G --innodb_log_file_size=1G --key_buffer_size=256M --query_cache_size=64M
+    environment:
+      MYSQL_ROOT_PASSWORD: root@123
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - ./mariadb_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - db_network
