@@ -22,4 +22,3 @@ services:
 networks:
   db_network:
     driver: bridge
-    
