@@ -1,0 +1,41 @@
+---
+services:
+  postgresql:
+    container_name: postgres
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: temporal_data
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+
+  temporal:
+    container_name: temporal
+    image: temporalio/auto-setup:1.28.1
+    restart: always
+    depends_on:
+      - postgresql
+    ports:
+      - 7233:7233
+    environment:
+      DB: postgres12
+      DBNAME: temporal_data
+      VISIBILITY_DBNAME: temporal_visibility
+      DB_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PWD: postgres
+      POSTGRES_SEEDS: postgresql
+
+  temporal-ui:
+    container_name: temporal-ui
+    image: temporalio/ui:2.34.0
+    restart: always
+    depends_on:
+      - temporal
+    ports:
+      - 8080:8080
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
