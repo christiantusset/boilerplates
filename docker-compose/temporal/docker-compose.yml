@@ -2,7 +2,7 @@
 services:
   postgresql:
     container_name: postgres
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     restart: always
     environment:
       POSTGRES_DB: temporal_data
@@ -10,13 +10,22 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d temporal_data"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
 
   temporal:
     container_name: temporal
-    image: temporalio/auto-setup:1.28.1
+    image: temporalio/auto-setup:1.29.6
     restart: always
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_healthy
     ports:
       - 7233:7233
     environment:
@@ -27,10 +36,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PWD: postgres
       POSTGRES_SEEDS: postgresql
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
 
   temporal-ui:
     container_name: temporal-ui
-    image: temporalio/ui:2.34.0
+    image: temporalio/ui:2.49.1
     restart: always
     depends_on:
       - temporal
