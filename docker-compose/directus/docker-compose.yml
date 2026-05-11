@@ -1,0 +1,73 @@
+---
+services:
+  postgresql:
+    container_name: postgres
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+      
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  directus:
+    container_name: directus
+    image: directus/directus:11
+    restart: always
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - 8055:8055
+    environment:
+      # Configurações gerais
+      KEY: 'gereUmaChaveUnica'
+      SECRET: 'useStringComplexaEmProducao'
+
+      # Configurações de administração
+      ADMIN_EMAIL: 'email@directus.com'
+      ADMIN_PASSWORD: 'directus@123'
+
+      # Cache Redis
+      CACHE_ENABLED: 'true'
+      CACHE_STORE: 'redis'
+      REDIS: 'redis://redis:6379'
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      # Configurações do banco de dados
+      DB_CLIENT: pg
+      DB_HOST: postgresql
+      DB_PORT: 5432
+      DB_DATABASE: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    volumes:
+      - ./directus_uploads:/directus/uploads
+      - ./directus_extensions:/directus/extensions
+      # - ./directus_database:/directus/database # SQLite
+  
